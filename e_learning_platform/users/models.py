@@ -20,18 +20,18 @@ class CustomUserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     email = models.EmailField(unique=True)
-    username = models.CharField(max_length=30, unique=True)  # Add the username field
+    username = models.CharField(max_length=30, unique=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     is_instructor = models.BooleanField(default=False)
     is_student = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)  # Staff status, needed for superuser
-    is_superuser = models.BooleanField(default=False)  # Superuser status, needed for superuser creation
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
 
-    USERNAME_FIELD = 'username'  # Set username as the unique field
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']  # Fields required for superuser
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
 
     objects = CustomUserManager()
 
