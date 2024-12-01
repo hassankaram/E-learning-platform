@@ -10,6 +10,6 @@ class CourseListView(generics.ListCreateAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(instructor=self.request.user)
+    #def perform_create(self, serializer):
+        #serializer.save(instructor=self.request.user)
 
