@@ -2,7 +2,7 @@ from django.db import models
 from users.models import User
 
 class Category(models.Model):
-    name = models.CahrField(max_length=255)
+    name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
