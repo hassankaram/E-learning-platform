@@ -30,22 +30,4 @@ const Categories = ({ onSelectCategory }) => {
 };
 
 export default Categories;
-// import React, { useState } from 'react';
-// import Categories from '/Users/mohamed3wes/e-learning/e-learning/src/components/Courses/Courses.jsx';
-// import Courses from '/Users/mohamed3wes/e-learning/e-learning/src/components/Courses/Categories.jsx';
 
-// const Home = () => {
-//   const [selectedCategory, setSelectedCategory] = useState('Data Science'); // Default category
-
-//   return (
-//     <div>
-//       {/* Render Categories */}
-//       <Categories onSelectCategory={setSelectedCategory} />
-      
-//       {/* Render Courses based on selected category */}
-//       <Courses selectedCategory={selectedCategory} />
-//     </div>
-//   );
-// };
-
-// export default Home;

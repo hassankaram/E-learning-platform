@@ -1,30 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React from 'react';
 import CourseCard from './CourseCard';
 
+const courseData = {
+  'Python': ['Python for Beginners', 'Advanced Python'],
+  'C++': ['C++ Fundamentals', 'OOP in C++'],
+  // Add more categories and courses here
+};
+
 const Courses = ({ selectedCategory }) => {
-  const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const response = await axios.get('http://localhost:5001/api/courses');
-        const filteredCourses = response.data.filter(course => course.category === selectedCategory);
-        setCourses(filteredCourses);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCourses();
-  }, [selectedCategory]);
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+  const courses = courseData[selectedCategory] || [];
 
   return (
     <section className="bg-gray-100 p-6">
@@ -32,7 +16,7 @@ const Courses = ({ selectedCategory }) => {
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {courses.length > 0 ? (
-          courses.map((course) => <CourseCard key={course.id} title={course.name} />)
+          courses.map((course, index) => <CourseCard key={index} title={course} />)
         ) : (
           <p className="text-gray-600">No courses available for the selected category.</p>
         )}

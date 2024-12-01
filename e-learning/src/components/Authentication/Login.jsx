@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useAuth } from '../Contexts/AuthContext';
 
 const Login = () => {
+  const { login } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
 
   const handleChange = (e) => {
@@ -10,7 +12,8 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Login Data:', formData); // Replace with API logic
+    login(formData); // Simulate login with context
+    console.log('Login Data:', formData);
   };
 
   return (
