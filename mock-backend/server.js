@@ -9,6 +9,7 @@ app.use(express.json());
 const courses = [
   { id: 1, name: 'Python for Beginners', category: 'Python' },
   { id: 2, name: 'Advanced Python', category: 'Python' },
+  { id: 3, name: 'Data Science Fundamentals', category: 'Data Science' },
 ];
 
 app.get('/api/courses', (req, res) => {
