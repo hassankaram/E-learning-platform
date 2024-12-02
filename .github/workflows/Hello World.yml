@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository to the runner
+      - uses: actions/checkout@v4
+
+      # Set up Git user for commits
+      - name: Set up Git user
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Append "Hello, world!" to a file (create it if it doesn't exist)
+      - name: Add "Hello, world!" to file
+        run: |
+          echo "Hello, world!" >> hello.txt
+          git add hello.txt
+          git commit -m "Add Hello, world! message"
+
+      # Push the changes back to the repository
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
