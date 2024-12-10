@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from .models import Category, Course, CourseProgress, Enrollment, Review
+from .models import Category, Course, CourseProgress, Enrollment, Review, Cart, CartItem
 from users.models import User
-from .models import Course
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -52,3 +51,21 @@ class CourseProgressSerializer(serializers.ModelSerializer):
         model = CourseProgress
         fields = ['id', 'student', 'course', 'is_completed', 'completed_at']
         read_only_fields = ['id', 'student', 'course', 'completed_at']
+
+class CartItemSerializer(serializers.ModelSerializer):
+    course_title = serializers.CharField(source="course.title", read_only=True)
+
+    class Meta:
+        model = CartItem
+        fields = ['id', 'course', 'course_title', 'quantity']
+
+class CartSerializer(serializers.ModelSerializer):
+    items = CartItemSerializer(many=True, read_only=True)
+    total_price = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Cart
+        fields = ['id', 'user', 'items', 'total_price', 'created_at']
+
+    def get_total_price(self, obj):
+        return obj.total_price()
