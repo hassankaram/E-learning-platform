@@ -80,3 +80,15 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.student.username} for {self.course.title}"
+
+class CourseProgress(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name="course_progress")
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="progress")
+    is_completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('student', 'course')
+
+    def __str__(self):
+        return f"{self.student.username} - {self.course.title} - {'Completed' if self.is_completed else 'In Progress'}"

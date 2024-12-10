@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Course, Enrollment, Review
+from .models import Category, Course, CourseProgress, Enrollment, Review
 from users.models import User
 from .models import Course
 
@@ -46,3 +46,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         if Review.objects.filter(student=validated_data['student'], course=validated_data['course']).exists():
             raise serializers.ValidationError("You have already reviewed this course.")
         return super().create(validated_data)
+    
+class CourseProgressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseProgress
+        fields = ['id', 'student', 'course', 'is_completed', 'completed_at']
+        read_only_fields = ['id', 'student', 'course', 'completed_at']
