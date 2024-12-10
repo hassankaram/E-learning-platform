@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework import status
-from .serializers import UserSerializer, UserProfileSerializer
+from .serializers import UserSerializer
 from rest_framework.permissions import IsAuthenticated
 
 class RegisterView(APIView):
@@ -30,12 +30,12 @@ class UserProfileView(APIView):
 
     def get(self, request):
         user = request.user  # The current authenticated user
-        serializer = UserProfileSerializer(user)
+        serializer = UserSerializer(user)
         return Response(serializer.data)
 
     def patch(self, request):
         user = request.user  # The current authenticated user
-        serializer = UserProfileSerializer(user, data=request.data, partial=True)
+        serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
