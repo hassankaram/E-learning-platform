@@ -37,3 +37,22 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
+
+class Lesson(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    course = models.ForeignKey(Course, related_name='lessons', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+    
+class Video(models.Model):
+    lesson = models.ForeignKey(Lesson, related_name='videos', on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    video_file = models.FileField(upload_to='videos/')
+    duration = models.DurationField()  # Store the duration of the video
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
