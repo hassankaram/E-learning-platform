@@ -1,6 +1,6 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
-from e_learning_platform.courses import serializers
+from . import serializers
 from .models import Category, Course, Enrollment, Review
 from .serializers import CategorySerializer, CourseSerializer, EnrollmentSerializer, ReviewSerializer
 from .permissions import IsInstructor
