@@ -92,3 +92,21 @@ class CourseProgress(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - {self.course.title} - {'Completed' if self.is_completed else 'In Progress'}"
+    
+class Cart(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="cart")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Cart of {self.user.username}"
+
+    def total_price(self):
+        return sum(item.course.price for item in self.items.all())
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
+    course = models.ForeignKey('Course', on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.course.title} in {self.cart.user.username}'s cart"
