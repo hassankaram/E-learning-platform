@@ -1,8 +1,8 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from e_learning_platform.courses import serializers
-from .models import Category, Course, Enrollment
-from .serializers import CategorySerializer, CourseSerializer, EnrollmentSerializer
+from .models import Category, Course, Enrollment, Review
+from .serializers import CategorySerializer, CourseSerializer, EnrollmentSerializer, ReviewSerializer
 from .permissions import IsInstructor
 
 
@@ -33,3 +33,21 @@ class CourseDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     permission_classes = [IsAuthenticated, IsInstructor]
+
+class ReviewListCreateView(generics.ListCreateAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Ensure the current user is a student
+        if not self.request.user.is_student:
+            raise serializers.ValidationError("Only students can review courses.")
+        serializer.save(student=self.request.user)
+
+class CourseReviewListView(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        course_id = self.kwargs['course_id']
+        return Review.objects.filter(course_id=course_id)
