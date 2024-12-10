@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'users',
     'courses',
+    'utils'
     'rest_framework.authtoken',
     'django.contrib.sites',
     'allauth',
