@@ -3,10 +3,13 @@ from requests import Response
 from rest_framework import status
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from django.http import HttpResponse
+from utils.certificate_generator import generate_certificate
 from . import serializers
 from .models import Category, Course, CourseProgress, Enrollment, Review
 from .serializers import CategorySerializer, CourseProgressSerializer, CourseSerializer, EnrollmentSerializer, ReviewSerializer
 from .permissions import IsInstructor
+
 
 
 class CategoryListView(generics.ListCreateAPIView):
@@ -78,3 +81,25 @@ class MarkCourseAsCompletedView(generics.ListAPIView):
 
         serializer = CourseProgressSerializer(progress)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class GenerateCertificateView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id):
+        student = request.user
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return Response({"error": "Course not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        progress = CourseProgress.objects.filter(student=student, course=course).first()
+        if not progress or not progress.is_completed:
+            return Response({"error": "You must complete the course to receive a certificate."}, status=status.HTTP_400_BAD_REQUEST)
+
+        completion_date = progress.completed_at
+        certificate_pdf = generate_certificate(student.username, course.title, completion_date)
+
+        response = HttpResponse(certificate_pdf, content_type="application/pdf")
+        response['Content-Disposition'] = f'attachment; filename="certificate_{course.id}.pdf"'
+
+        return response
