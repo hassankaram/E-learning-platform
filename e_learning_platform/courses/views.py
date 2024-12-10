@@ -6,8 +6,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.http import HttpResponse
 from utils.certificate_generator import generate_certificate
 from . import serializers
-from .models import Category, Course, CourseProgress, Enrollment, Review
-from .serializers import CategorySerializer, CourseProgressSerializer, CourseSerializer, EnrollmentSerializer, ReviewSerializer
+from .models import Cart, CartItem, Category, Course, CourseProgress, Enrollment, Review
+from .serializers import CartItemSerializer, CartSerializer, CategorySerializer, CourseProgressSerializer, CourseSerializer, EnrollmentSerializer, ReviewSerializer
 from .permissions import IsInstructor
 
 
@@ -17,6 +17,7 @@ class CategoryListView(generics.ListCreateAPIView):
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticated]
 
+
 class CourseListView(generics.ListCreateAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
@@ -24,6 +25,7 @@ class CourseListView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(instructor=self.request.user)
+
 
 class EnrollmentListCreateView(generics.ListCreateAPIView):
     queryset = Enrollment.objects.all()
@@ -35,10 +37,12 @@ class EnrollmentListCreateView(generics.ListCreateAPIView):
             raise serializers.ValidationError("Only students can enroll in courses.")
         serializer.save(student=self.request.user)
 
+
 class CourseDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     permission_classes = [IsAuthenticated, IsInstructor]
+
 
 class ReviewListCreateView(generics.ListCreateAPIView):
     queryset = Review.objects.all()
@@ -51,13 +55,15 @@ class ReviewListCreateView(generics.ListCreateAPIView):
             raise serializers.ValidationError("Only students can review courses.")
         serializer.save(student=self.request.user)
 
+
 class CourseReviewListView(generics.ListAPIView):
     serializer_class = ReviewSerializer
 
     def get_queryset(self):
         course_id = self.kwargs['course_id']
         return Review.objects.filter(course_id=course_id)
-    
+
+
 class MarkCourseAsCompletedView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
@@ -82,6 +88,7 @@ class MarkCourseAsCompletedView(generics.ListAPIView):
         serializer = CourseProgressSerializer(progress)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class GenerateCertificateView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
@@ -103,3 +110,47 @@ class GenerateCertificateView(generics.ListAPIView):
         response['Content-Disposition'] = f'attachment; filename="certificate_{course.id}.pdf"'
 
         return response
+    
+
+class CartView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        serializer = CartSerializer(cart)
+        return Response(serializer.data)
+
+class AddToCartView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        course_id = request.data.get('course_id')
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return Response({"error": "Course not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        if course.instructor == user:
+            return Response({"error": "You cannot add your own course to the cart."}, status=status.HTTP_400_BAD_REQUEST)
+
+        cart, created = Cart.objects.get_or_create(user=user)
+        if cart.items.filter(course=course).exists():
+            return Response({"error": "This course is already in your cart."}, status=status.HTTP_400_BAD_REQUEST)
+
+        cart_item = CartItem.objects.create(cart=cart, course=course)
+        serializer = CartItemSerializer(cart_item)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class RemoveFromCartView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, cart_item_id):
+        user = request.user
+        try:
+            cart_item = CartItem.objects.get(id=cart_item_id, cart__user=user)
+        except CartItem.DoesNotExist:
+            return Response({"error": "Cart item not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        cart_item.delete()
+        return Response({"message": "Item removed from cart"}, status=status.HTTP_204_NO_CONTENT)
