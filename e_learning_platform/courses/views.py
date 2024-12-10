@@ -28,3 +28,8 @@ class EnrollmentListCreateView(generics.ListCreateAPIView):
         if not self.request.user.is_student:
             raise serializers.ValidationError("Only students can enroll in courses.")
         serializer.save(student=self.request.user)
+
+class CourseDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Course.objects.all()
+    serializer_class = CourseSerializer
+    permission_classes = [IsAuthenticated, IsInstructor]
