@@ -10,7 +10,7 @@ urlpatterns = [
     path('reviews/', ReviewListCreateView.as_view(), name='review-list-create'),
     path('courses/<int:course_id>/complete/', MarkCourseAsCompletedView.as_view(), name='mark-course-completed'),
     path('courses/<int:course_id>/certificate/', GenerateCertificateView.as_view(), name='generate-certificate'),
-     path('cart/', CartView.as_view(), name='cart'),
+    path('cart/', CartView.as_view(), name='cart'),
     path('cart/add/', AddToCartView.as_view(), name='add-to-cart'),
     path('cart/remove/<int:cart_item_id>/', RemoveFromCartView.as_view(), name='remove-from-cart'),
 ]
