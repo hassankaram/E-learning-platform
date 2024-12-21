@@ -1,7 +1,5 @@
-import { startTransition } from 'react';
-
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -10,13 +8,13 @@ export default {
     extend: {},
     fontFamily: {
       sans: ['Roboto', 'sans-serif'],
-      gridTemplateColumns: {
-        '70/30': '70% 28%',
-      },
-      plugins: [
-        require('tailwind-scrollbar'),
-      ],
-    }
+    },
+    gridTemplateColumns: {
+      '70/30': '70% 28%',
+    },
   },
-  plugins: [],
-}
+  plugins: [
+    require('tailwind-scrollbar'),
+    require('tailwind-scrollbar-hide'), // Add this plugin
+  ],
+};

@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import JsonResponse, HttpResponse
 from utils.certificate_generator import generate_certificate
-from .models import Cart, CartItem, Course, CourseProgress, Enrollment, Review, Category
+from .models import Cart, CartItem, Course, CourseProgress, Enrollment, Category
 from .serializers import (
     CartItemSerializer,
     CartSerializer,
@@ -13,7 +13,6 @@ from .serializers import (
     CourseProgressSerializer,
     CourseSerializer,
     EnrollmentSerializer,
-    ReviewSerializer,
 )
 from .permissions import IsInstructor
 
@@ -56,22 +55,9 @@ class CourseDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CourseSerializer
     permission_classes = [IsAuthenticated, IsInstructor]
 
-class ReviewListCreateView(generics.ListCreateAPIView):
-    queryset = Review.objects.all()
-    serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
 
-    def perform_create(self, serializer):
-        if not self.request.user.is_student:
-            raise serializers.ValidationError("Only students can review courses.")
-        serializer.save(student=self.request.user)
 
-class CourseReviewListView(generics.ListAPIView):
-    serializer_class = ReviewSerializer
 
-    def get_queryset(self):
-        course_id = self.kwargs['course_id']
-        return Review.objects.filter(course_id=course_id)
 
 class MarkCourseAsCompletedView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]

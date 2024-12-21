@@ -1,3 +1,4 @@
+// filepath: /Users/mohamed3wes/new e-learning/E-learning-platform/e-learning/src/components/Courses/Courses.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import CourseCard from './CourseCard';
@@ -10,8 +11,10 @@ const Courses = ({ selectedCategory }) => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get('http://localhost:5001/api/courses');
-        const filteredCourses = response.data.filter(course => course.category === selectedCategory);
+        const response = await axios.get('http://127.0.0.1:8000/api/courses/');
+        const filteredCourses = response.data.filter(
+          course => course.category_name === selectedCategory
+        );
         setCourses(filteredCourses);
       } catch (err) {
         setError(err.message);
@@ -27,17 +30,14 @@ const Courses = ({ selectedCategory }) => {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <section className="bg-gray-100 p-6">
-      <h2 className="text-2xl font-bold mb-4">{selectedCategory} Courses</h2>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {courses.length > 0 ? (
-          courses.map((course) => <CourseCard key={course.id} title={course.name} />)
-        ) : (
-          <p className="text-gray-600">No courses available for the selected category.</p>
-        )}
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Courses</h1>
+      <div className="flex gap-4 overflow-x-auto max-w-full scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100">
+        {courses.map(course => (
+          <CourseCard key={course.id} title={course.title} />
+        ))}
       </div>
-    </section>
+    </div>
   );
 };
 

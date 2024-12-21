@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Course, CourseProgress, Enrollment, Review, Cart, CartItem
+from .models import Category, Course, CourseProgress, Enrollment, Cart, CartItem
 from users.models import User
 
 
@@ -32,19 +32,7 @@ class EnrollmentSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Student is already enrolled in this course.")
         return super().create(validated_data)
     
-class ReviewSerializer(serializers.ModelSerializer):
-    student_username = serializers.CharField(source='student.username', read_only=True)
 
-    class Meta:
-        model = Review
-        fields = ['id', 'course', 'student', 'student_username', 'rating', 'comment', 'created_at']
-
-    def create(self, validated_data):
-        # Ensure a student can only leave one review per course
-        if Review.objects.filter(student=validated_data['student'], course=validated_data['course']).exists():
-            raise serializers.ValidationError("You have already reviewed this course.")
-        return super().create(validated_data)
-    
 class CourseProgressSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseProgress

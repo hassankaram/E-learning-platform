@@ -1,51 +1,46 @@
-import React from 'react';
-
-const categories = [
-  'Data Science', 'Python', 'C++', 'C', 'Java', 'JavaScript', 
-  'ChatGPT Prompting', 'Web Dev', 'Back End', 'Web Design', 
-  'Flutter', 'React', 'React Native', 'VueJS', 'NextJS', 
-  'Database', 'MySQL'
-];
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const Categories = ({ onSelectCategory }) => {
+  const [categories, setCategories] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    axios
+      .get('http://127.0.0.1:8000/api/categories/')
+      .then(response => {
+        console.log('Fetched Categories:', response.data); // Debugging fetched data
+        setCategories(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching categories:', error); // Debug error
+        setError(error);
+      });
+  }, []);
+
+  if (error) {
+    return <div className="text-red-500">Error: {error.message}</div>;
+  }
+
   return (
-    <section className="bg-gray-100 p-6">
-      <h2 className="text-2xl font-bold mb-4">Categories</h2>
-      
-      <div className="overflow-x-auto whitespace-nowrap p-4 bg-white rounded-lg shadow-lg scrollbar-thin scrollbar-thumb-indigo-500 scrollbar-track-gray-200">
-        <div className="inline-flex space-x-4">
-          {categories.map((category, index) => (
-            <button
-              key={index}
-              onClick={() => onSelectCategory(category)} // Pass selected category
-              className="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg shadow-md hover:bg-indigo-200 transition"
-            >
-              {category}
-            </button>
-          ))}
-        </div>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Categories</h1>
+      <div className="flex gap-4 overflow-x-auto max-w-full scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100">
+        {categories.map(category => (
+          <div
+            key={category.id}
+            className="cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200 hover:text-blue-800 rounded-lg px-4 py-2 shadow-md text-center w-32"
+            onClick={() => {
+              console.log('Selected Category:', category.name); // Debug selected category
+              onSelectCategory(category.name);
+            }}
+          >
+            {category.name}
+          </div>
+        ))}
       </div>
-    </section>
+    </div>
   );
 };
 
 export default Categories;
-// import React, { useState } from 'react';
-// import Categories from '/Users/mohamed3wes/e-learning/e-learning/src/components/Courses/Courses.jsx';
-// import Courses from '/Users/mohamed3wes/e-learning/e-learning/src/components/Courses/Categories.jsx';
-
-// const Home = () => {
-//   const [selectedCategory, setSelectedCategory] = useState('Data Science'); // Default category
-
-//   return (
-//     <div>
-//       {/* Render Categories */}
-//       <Categories onSelectCategory={setSelectedCategory} />
-      
-//       {/* Render Courses based on selected category */}
-//       <Courses selectedCategory={selectedCategory} />
-//     </div>
-//   );
-// };
-
-// export default Home;

@@ -90,20 +90,3 @@ class Enrollment(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - {self.course.title}"
-    
-
-class Review(models.Model):
-    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
-    instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_reviews')
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='reviews')
-    rating = models.PositiveIntegerField(choices=[(i, i) for i in range(1, 6)])  # Rating scale from 1 to 5
-    content = models.TextField(blank=True, null=True)
-    date_created = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ['student', 'course']  # Prevent multiple reviews for the same course by the same student
-
-    def __str__(self):
-        return f"Review by {self.student.username} for {self.course.title} - Rating: {self.rating}"
-
-    

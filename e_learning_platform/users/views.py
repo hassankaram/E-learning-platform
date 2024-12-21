@@ -4,13 +4,15 @@ from rest_framework.authtoken.models import Token
 from rest_framework import status
 from .serializers import UserSerializer
 from rest_framework.permissions import IsAuthenticated
-# filepath: /Users/mohamed3wes/new e-learning/E-learning-platform/e_learning_platform/e_learning_platform/views.py
 from django.http import JsonResponse
 from courses.models import Category
+from django.contrib.auth import authenticate
 
-def categories_list(request):
-    categories = Category.objects.all().values('id', 'name')
-    return JsonResponse(list(categories), safe=False)
+# Categories List View (refactored to class-based view)
+class CategoriesListView(APIView):
+    def get(self, request):
+        categories = Category.objects.all().values('id', 'name')
+        return JsonResponse(list(categories), safe=False)
 
 class RegisterView(APIView):
     def post(self, request):
@@ -23,14 +25,15 @@ class RegisterView(APIView):
     
 class LoginView(APIView):
     def post(self, request):
-        from django.contrib.auth import authenticate
         username = request.data.get('username')
         password = request.data.get('password')
         user = authenticate(username=username, password=password)
+        
         if user:
-            token, created= Token.objects.get_or_create(user=user)
+            token, created = Token.objects.get_or_create(user=user)
             return Response({'token': token.key}, status=status.HTTP_200_OK)
-        return Response({'error':'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        return Response({'error': 'Invalid credentials. Please check your username and password.'}, status=status.HTTP_401_UNAUTHORIZED)
     
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
