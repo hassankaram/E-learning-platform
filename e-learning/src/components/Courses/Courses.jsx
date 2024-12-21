@@ -1,4 +1,3 @@
-// filepath: /Users/mohamed3wes/new e-learning/E-learning-platform/e-learning/src/components/Courses/Courses.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import CourseCard from './CourseCard';
@@ -13,7 +12,7 @@ const Courses = ({ selectedCategory }) => {
       try {
         const response = await axios.get('http://127.0.0.1:8000/api/courses/');
         const filteredCourses = response.data.filter(
-          course => course.category_name === selectedCategory
+          (course) => course.category_name === selectedCategory
         );
         setCourses(filteredCourses);
       } catch (err) {
@@ -32,9 +31,9 @@ const Courses = ({ selectedCategory }) => {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Courses</h1>
-      <div className="flex gap-4 overflow-x-auto max-w-full scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100">
-        {courses.map(course => (
-          <CourseCard key={course.id} title={course.title} />
+      <div className="flex gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100">
+        {courses.map((course) => (
+          <CourseCard key={course.id} course={course} />
         ))}
       </div>
     </div>

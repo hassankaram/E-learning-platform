@@ -2,6 +2,8 @@
 from django.http import JsonResponse
 from courses.models import Category 
 from .models import Cart, CartItem, Category, Course, CourseProgress, Enrollment, Review
+from rest_framework.permissions import IsAuthenticated
+
 
 
 def categories_list(request):

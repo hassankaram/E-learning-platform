@@ -3,7 +3,6 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 // Create the AuthContext
 const AuthContext = createContext();
 
-// AuthProvider Component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 

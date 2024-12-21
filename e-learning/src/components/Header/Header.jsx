@@ -21,6 +21,18 @@ const Header = () => {
             {user ? (
               <>
                 <li>
+                  <Link
+                    to="/cart-enrollments"
+                    className="text-indigo-600 hover:text-indigo-400"
+                  >
+                    <img
+                      src="/src/assets/react.svg"
+                      alt="Cart Icon"
+                      className="w-6 h-6"
+                    />
+                  </Link>
+                </li>
+                <li>
                   <span className="text-gray-700">{user.username}</span>
                 </li>
                 <li>
@@ -42,6 +54,15 @@ const Header = () => {
                 <li>
                   <Link to="/signup" className="text-indigo-600 hover:text-indigo-400">
                     Signup
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/cart-enrollments">
+                    <img
+                      src="/src/assets/react.svg"
+                      alt="Cart Icon"
+                      className="w-6 h-6"
+                    />
                   </Link>
                 </li>
               </>
