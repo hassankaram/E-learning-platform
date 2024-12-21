@@ -4,6 +4,13 @@ from rest_framework.authtoken.models import Token
 from rest_framework import status
 from .serializers import UserSerializer
 from rest_framework.permissions import IsAuthenticated
+# filepath: /Users/mohamed3wes/new e-learning/E-learning-platform/e_learning_platform/e_learning_platform/views.py
+from django.http import JsonResponse
+from courses.models import Category
+
+def categories_list(request):
+    categories = Category.objects.all().values('id', 'name')
+    return JsonResponse(list(categories), safe=False)
 
 class RegisterView(APIView):
     def post(self, request):

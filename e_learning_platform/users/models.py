@@ -1,5 +1,7 @@
+# filepath: /Users/mohamed3wes/new e-learning/E-learning-platform/e_learning_platform/users/models.py
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):

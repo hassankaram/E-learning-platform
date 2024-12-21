@@ -1,6 +1,8 @@
+# filepath: /Users/mohamed3wes/new e-learning/E-learning-platform/e_learning_platform/courses/models.py
 from django.db import models
-from users.models import User
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -12,7 +14,7 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
-    
+
 class Course(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
@@ -41,72 +43,67 @@ class Course(models.Model):
 class Lesson(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    course = models.ForeignKey(Course, related_name='lessons', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
 
     def __str__(self):
         return self.title
-    
+
 class Video(models.Model):
-    lesson = models.ForeignKey(Lesson, related_name='videos', on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     video_file = models.FileField(upload_to='videos/')
-    duration = models.DurationField()  # Store the duration of the video
+    duration = models.DurationField()
     created_at = models.DateTimeField(auto_now_add=True)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='videos')
 
     def __str__(self):
         return self.title
-    
-class Enrollment(models.Model):
-    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='enrollments')
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrollments')
-    date_enrolled = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        unique_together = ('student', 'course')  # Prevent duplicate enrollments
-
-    def __str__(self):
-        return f"{self.student.username} enrolled in {self.course.title}"
-    
-class Review(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='reviews')
-    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
-    rating = models.PositiveIntegerField(choices=[(1, '1 Star'), (2, '2 Stars'), (3, '3 Stars'), (4, '4 Stars'), (5, '5 Stars')])
-    comment = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('student', 'course')  # Ensure each student can only review a course once
-
-    def __str__(self):
-        return f"Review by {self.student.username} for {self.course.title}"
-
-class CourseProgress(models.Model):
-    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name="course_progress")
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="progress")
-    is_completed = models.BooleanField(default=False)
-    completed_at = models.DateTimeField(null=True, blank=True)
-
-    class Meta:
-        unique_together = ('student', 'course')
-
-    def __str__(self):
-        return f"{self.student.username} - {self.course.title} - {'Completed' if self.is_completed else 'In Progress'}"
-    
 class Cart(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="cart")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='carts')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Cart of {self.user.username}"
 
-    def total_price(self):
-        return sum(item.course.price for item in self.items.all())
-
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
-    course = models.ForeignKey('Course', on_delete=models.CASCADE)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 
     def __str__(self):
-        return f"{self.course.title} in {self.cart.user.username}'s cart"
+        return f"{self.course.title} (x{self.quantity})"
+
+class CourseProgress(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='course_progress')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='progress')
+    is_completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.student.username} - {self.course.title} - {'Completed' if self.is_completed else 'In Progress'}"
+
+class Enrollment(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='enrollments')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrollments')
+    date_enrolled = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.student.username} - {self.course.title}"
+    
+
+class Review(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
+    instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_reviews')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='reviews')
+    rating = models.PositiveIntegerField(choices=[(i, i) for i in range(1, 6)])  # Rating scale from 1 to 5
+    content = models.TextField(blank=True, null=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['student', 'course']  # Prevent multiple reviews for the same course by the same student
+
+    def __str__(self):
+        return f"Review by {self.student.username} for {self.course.title} - Rating: {self.rating}"
+
+    
