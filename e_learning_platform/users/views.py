@@ -7,27 +7,32 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserSerializer
 from rest_framework.permissions import IsAuthenticated
 
-
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):
         username = request.data.get('username')
         password = request.data.get('password')
 
+        # Authenticate user
         user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
-                # Generate JWT tokens (if using JWT)
+                # Generate JWT tokens
                 refresh = RefreshToken.for_user(user)
-                update_last_login(None, user)  # Update last login timestamp
+                update_last_login(None, user)
+
+                # Serialize user data
                 serialized_user = UserSerializer(user).data
 
                 return Response({
-                    'refresh': str(refresh),
                     'access': str(refresh.access_token),
-                    'user': serialized_user  # Send user details
+                    'refresh': str(refresh),
+                    'user': serialized_user
                 }, status=status.HTTP_200_OK)
+
             return Response({'detail': 'Account is disabled.'}, status=status.HTTP_403_FORBIDDEN)
+
         return Response({'detail': 'Invalid username or password.'}, status=status.HTTP_401_UNAUTHORIZED)
+
 
     
 class UserProfileView(APIView):
