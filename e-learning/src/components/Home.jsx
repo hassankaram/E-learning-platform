@@ -9,19 +9,23 @@ import Categories from './Courses/Categories';
 
 const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState('Data Science');
-  const { user } = useAuth(); // Destructure `user` from useAuth once
+  const { token } = useAuth(); // Destructure `token` instead of `user`
 
-  console.log('Logged-in User:', user); // Debug user state
+  console.log('Logged-in Token:', token); // Debug token state
 
   return (
     <div>
       <Header />
       <Hero />
-      {(
+      {token ? (
         <>
           <Categories onSelectCategory={setSelectedCategory} />
           <Courses selectedCategory={selectedCategory} />
         </>
+      ) : (
+        <p className="text-center text-red-500 mt-4">
+          Please log in to view the courses.
+        </p>
       )}
       <Footer />
     </div>

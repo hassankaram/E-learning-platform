@@ -19,12 +19,13 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://127.0.0.1:8000/auth/login/', formData);
-      login(response.data.user); // Update the global state
+      login(response.data.key); // Pass the token (`key`) to the `login` function
       navigate('/'); // Redirect to home page
     } catch (error) {
       setError(error.response?.data?.detail || 'Login failed. Please try again.');
     }
   };
+  
 
   return (
     <div className="max-w-md mx-auto bg-gray-100 p-6 rounded-lg shadow-md">

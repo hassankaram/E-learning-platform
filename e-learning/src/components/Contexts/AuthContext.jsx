@@ -4,39 +4,39 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
 
   // Login function
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData)); // Persist user in localStorage
+  const login = (token) => {
+    setToken(token);
+    localStorage.setItem('token', token); // Persist token in localStorage
   };
 
   // Logout function
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user'); // Remove user from localStorage
+    setToken(null);
+    localStorage.removeItem('token'); // Remove token from localStorage
   };
 
-  // Initialize user from localStorage on mount
-  const initializeUser = () => {
+  // Initialize token from localStorage on mount
+  const initializeToken = () => {
     try {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+      const storedToken = localStorage.getItem('token');
+      if (storedToken) {
+        setToken(storedToken);
       }
     } catch (error) {
-      console.error('Error loading user from localStorage:', error);
-      localStorage.removeItem('user'); // Clear corrupted data
+      console.error('Error loading token from localStorage:', error);
+      localStorage.removeItem('token'); // Clear corrupted data
     }
   };
 
   useEffect(() => {
-    initializeUser();
+    initializeToken();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
