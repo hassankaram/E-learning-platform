@@ -1,46 +1,63 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
-// Create the AuthContext
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('token') || null);
+  const [user, setUser] = useState(null); // Add user state
 
-  // Login function
-  const login = (token) => {
-    setToken(token);
-    localStorage.setItem('token', token); // Persist token in localStorage
-  };
-
-  // Logout function
-  const logout = () => {
-    setToken(null);
-    localStorage.removeItem('token'); // Remove token from localStorage
-  };
-
-  // Initialize token from localStorage on mount
-  const initializeToken = () => {
+  /**
+   * Fetch user profile from /profile/ endpoint
+   */
+  const fetchUserProfile = async (token) => {
+    console.log('Using Token:', token); // Debugging log
     try {
-      const storedToken = localStorage.getItem('token');
-      if (storedToken) {
-        setToken(storedToken);
+      const response = await fetch('http://127.0.0.1:8000/profile/', {
+        headers: {
+          Authorization: `Bearer ${token}`, // Ensure the token is correctly formatted
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Fetched User Profile:', data);
+        return data;
       }
+      console.error('Failed to fetch user profile. Status:', response.status);
+      return null;
     } catch (error) {
-      console.error('Error loading token from localStorage:', error);
-      localStorage.removeItem('token'); // Clear corrupted data
+      console.error('Error fetching user profile:', error);
+      return null;
+    }
+  };
+  
+
+  /**
+   * Login function: Save token and fetch user profile
+   */
+  const login = async (newToken) => {
+    setToken(newToken);
+    localStorage.setItem('token', newToken);
+
+    const userData = await fetchUserProfile(newToken);
+    if (userData) {
+      setUser(userData); // Store user details in context
     }
   };
 
-  useEffect(() => {
-    initializeToken();
-  }, []);
+  /**
+   * Logout function: Clear token and user data
+   */
+  const logout = () => {
+    setToken(null);
+    setUser(null); // Clear user state
+    localStorage.removeItem('token');
+  };
 
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
+    <AuthContext.Provider value={{ token, user, isAuthenticated: !!token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Hook to use AuthContext
 export const useAuth = () => useContext(AuthContext);

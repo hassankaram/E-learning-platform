@@ -1,6 +1,6 @@
-// filepath: /Users/mohamed3wes/new e-learning/E-learning-platform/e-learning/src/components/Authentication/SignUp.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +11,12 @@ const Signup = () => {
   });
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate(); // Hook for navigation
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,22 +27,27 @@ const Signup = () => {
     e.preventDefault();
     setSuccessMessage('');
     setErrorMessage('');
-
-    if (formData.password1 !== formData.password2) {
-      setErrorMessage("Passwords don't match.");
-      return;
-    }
-
+  
     try {
-      const response = await axios.post('http://127.0.0.1:8000/auth/registration/', formData);
-      setSuccessMessage('Signup successful! Please log in.');
+      const response = await axios.post('http://127.0.0.1:8000/registration/', formData);
+      setSuccessMessage('Signup successful! Redirecting to login page...');
       setFormData({ username: '', email: '', password1: '', password2: '' });
+  
+      // Redirect after showing success message
+      setTimeout(() => {
+        navigate('/login'); // Use navigate for redirection
+      }, 3000);
     } catch (error) {
       if (error.response && error.response.data) {
         const errors = error.response.data;
-        // Combine errors into a single string
+  
+        // Format error messages
         const errorDetails = Object.entries(errors)
-          .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+          .map(([field, messages]) => {
+            return Array.isArray(messages)
+              ? `${field}: ${messages.join(', ')}`
+              : `${field}: ${messages}`;
+          })
           .join('. ');
         setErrorMessage(`Signup failed: ${errorDetails}`);
       } else {

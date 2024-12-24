@@ -6,33 +6,35 @@ from django.contrib.auth.models import update_last_login
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserSerializer
 from rest_framework.permissions import IsAuthenticated
+from .serializers import UserDetailSerializer  # New serializer for user details
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):
         username = request.data.get('username')
         password = request.data.get('password')
 
-        # Authenticate user
         user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
-                # Generate JWT tokens
                 refresh = RefreshToken.for_user(user)
                 update_last_login(None, user)
+                serialized_user = UserDetailSerializer(user).data
 
-                # Serialize user data
-                serialized_user = UserSerializer(user).data
+                response_data = {
+                    'key': str(refresh.access_token),
+                    'user': serialized_user,
+                    'refresh': str(refresh)
+                }
 
-                return Response({
-                    'access': str(refresh.access_token),
-                    'refresh': str(refresh),
-                    'user': serialized_user
-                }, status=status.HTTP_200_OK)
+                logger.info(f"Login response: {response_data}")
+                return Response(response_data, status=status.HTTP_200_OK)
 
             return Response({'detail': 'Account is disabled.'}, status=status.HTTP_403_FORBIDDEN)
-
         return Response({'detail': 'Invalid username or password.'}, status=status.HTTP_401_UNAUTHORIZED)
-
 
     
 class UserProfileView(APIView):
@@ -54,4 +56,11 @@ class UserProfileView(APIView):
 
 class RegisterView(APIView):
     def post(self, request):
-        return Response({"message": "Registration endpoint"})    
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(
+                {"message": "User registered successfully!", "user": UserSerializer(user).data},
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

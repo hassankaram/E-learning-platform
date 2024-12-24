@@ -2,10 +2,11 @@
 from django.contrib import admin
 from django.urls import path, include
 from courses.views import categories_list, courses_list  # Corrected import
+from users.views import LoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('auth/', include('dj_rest_auth.urls')),
+    path('auth/login/', LoginView.as_view(), name='custom_login'),
     path('auth/registration/', include('dj_rest_auth.registration.urls')),
     path('api/users/', include('users.urls')),
     path('api/categories/', categories_list, name='categories_list'),

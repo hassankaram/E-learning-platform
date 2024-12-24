@@ -1,6 +1,5 @@
-// filepath: /src/components/Home.jsx
 import React, { useState } from 'react';
-import { useAuth } from '/Users/mohamed3wes/new e-learning/E-learning-platform/e-learning/src/components/Contexts/AuthContext.jsx';
+import { useAuth } from './Contexts/AuthContext';
 import Header from './Header/Header';
 import Hero from './Hero/Hero';
 import Courses from './Courses/Courses';
@@ -9,13 +8,13 @@ import Categories from './Courses/Categories';
 
 const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState('Data Science');
-  const { token } = useAuth(); // Destructure `token` instead of `user`
+  const { token } = useAuth();
 
   console.log('Logged-in Token:', token); // Debug token state
 
   return (
     <div>
-      <Header />
+      
       <Hero />
       {token ? (
         <>

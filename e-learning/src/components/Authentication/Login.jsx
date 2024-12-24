@@ -1,4 +1,3 @@
-// filepath: /src/components/Authentication/Login.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../Contexts/AuthContext';
@@ -25,7 +24,6 @@ const Login = () => {
       setError(error.response?.data?.detail || 'Login failed. Please try again.');
     }
   };
-  
 
   return (
     <div className="max-w-md mx-auto bg-gray-100 p-6 rounded-lg shadow-md">
