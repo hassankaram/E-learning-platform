@@ -31,7 +31,6 @@ class EnrollmentSerializer(serializers.ModelSerializer):
         if Enrollment.objects.filter(student=validated_data['student'], course=validated_data['course']).exists():
             raise serializers.ValidationError("Student is already enrolled in this course.")
         return super().create(validated_data)
-    
 
 class CourseProgressSerializer(serializers.ModelSerializer):
     class Meta:

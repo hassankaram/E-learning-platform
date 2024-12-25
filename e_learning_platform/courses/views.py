@@ -27,6 +27,14 @@ def courses_list(request):
     serializer = CourseSerializer(courses, many=True)
     return Response(serializer.data)
 
+@api_view(['GET'])
+def enrollment_list(request):
+    enrollments = Enrollment.objects.all()
+    serializer = EnrollmentSerializer(enrollments, many=True)
+    return Response(serializer.data)
+
+
+
 class CategoryListView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -108,36 +116,25 @@ class GenerateCertificateView(generics.GenericAPIView):
 class CartView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        cart, created = Cart.objects.get_or_create(user=request.user)
-        serializer = CartSerializer(cart)
-        return Response(serializer.data)
-
     def post(self, request):
-        user = request.user
-        course_id = request.data.get('course_id')
         try:
+            course_id = request.data.get('course_id')
+            if not course_id:
+                raise ValueError("Course ID is required.")
+
             course = Course.objects.get(id=course_id)
+            if course.instructor == request.user:
+                raise ValueError("You cannot add your own course to the cart.")
+
+            cart, created = Cart.objects.get_or_create(user=request.user)
+            if cart.items.filter(course=course).exists():
+                raise ValueError("This course is already in your cart.")
+
+            cart_item = CartItem.objects.create(cart=cart, course=course)
+            return Response(CartItemSerializer(cart_item).data, status=status.HTTP_201_CREATED)
         except Course.DoesNotExist:
-            return Response({"error": "Course not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        if course.instructor == user:
-            return Response({"error": "You cannot add your own course to the cart."}, status=status.HTTP_400_BAD_REQUEST)
-
-        cart, created = Cart.objects.get_or_create(user=user)
-        if cart.items.filter(course=course).exists():
-            return Response({"error": "This course is already in your cart."}, status=status.HTTP_400_BAD_REQUEST)
-
-        cart_item = CartItem.objects.create(cart=cart, course=course)
-        serializer = CartItemSerializer(cart_item)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    def delete(self, request, cart_item_id):
-        user = request.user
-        try:
-            cart_item = CartItem.objects.get(id=cart_item_id, cart__user=user)
-        except CartItem.DoesNotExist:
-            return Response({"error": "Cart item not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        cart_item.delete()
-        return Response({"message": "Item removed from cart"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"error": "Course not found."}, status=status.HTTP_404_NOT_FOUND)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

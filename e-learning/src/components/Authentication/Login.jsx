@@ -18,7 +18,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://127.0.0.1:8000/auth/login/', formData);
-      login(response.data.key); // Pass the token (`key`) to the `login` function
+      login(response.data); // Pass the token (`key`) to the `login` function
       navigate('/'); // Redirect to home page
     } catch (error) {
       setError(error.response?.data?.detail || 'Login failed. Please try again.');

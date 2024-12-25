@@ -11,12 +11,7 @@ const Signup = () => {
   });
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const navigate = useNavigate(); // Hook for navigation
-
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,31 +22,30 @@ const Signup = () => {
     e.preventDefault();
     setSuccessMessage('');
     setErrorMessage('');
-  
+
     try {
       const response = await axios.post('http://127.0.0.1:8000/registration/', formData);
       setSuccessMessage('Signup successful! Redirecting to login page...');
       setFormData({ username: '', email: '', password1: '', password2: '' });
-  
-      // Redirect after showing success message
+
       setTimeout(() => {
-        navigate('/login'); // Use navigate for redirection
+        navigate('/login');
       }, 3000);
     } catch (error) {
-      if (error.response && error.response.data) {
-        const errors = error.response.data;
-  
-        // Format error messages
-        const errorDetails = Object.entries(errors)
-          .map(([field, messages]) => {
-            return Array.isArray(messages)
-              ? `${field}: ${messages.join(', ')}`
-              : `${field}: ${messages}`;
-          })
-          .join('. ');
-        setErrorMessage(`Signup failed: ${errorDetails}`);
+      if (error.response) {
+        const { status, data } = error.response;
+        if (status === 500) {
+          setErrorMessage('Internal server error. Please contact support.');
+        } else if (status === 400) {
+          const formattedErrors = Object.entries(data)
+            .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+            .join('. ');
+          setErrorMessage(`Signup failed: ${formattedErrors}`);
+        } else {
+          setErrorMessage('An unexpected error occurred.');
+        }
       } else {
-        setErrorMessage('An unexpected error occurred. Please try again later.');
+        setErrorMessage('Unable to connect to the server. Please try again.');
       }
     }
   };
@@ -72,6 +66,7 @@ const Signup = () => {
             className="w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
             placeholder="Enter your username"
             required
+            autoComplete="username"
           />
         </div>
         <div className="mb-4">
@@ -84,6 +79,7 @@ const Signup = () => {
             className="w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
             placeholder="Enter your email"
             required
+            autoComplete="email"
           />
         </div>
         <div className="mb-4">
@@ -96,6 +92,7 @@ const Signup = () => {
             className="w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
             placeholder="Enter your password"
             required
+            autoComplete="new-password"
           />
         </div>
         <div className="mb-4">
@@ -108,6 +105,7 @@ const Signup = () => {
             className="w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
             placeholder="Confirm your password"
             required
+            autoComplete="new-password"
           />
         </div>
         <button
