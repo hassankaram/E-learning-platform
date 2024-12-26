@@ -16,16 +16,36 @@ from .serializers import (
 )
 from .permissions import IsInstructor
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def categories_list(request):
-    categories = Category.objects.all().values('id', 'name')
-    return JsonResponse(list(categories), safe=False)
+    if request.method == 'GET':
+        categories = Category.objects.all()
+        response = []
+        for category in categories:
+            courses = Course.objects.filter(category=category)
+            courses_serializer = CourseSerializer(courses, many=True)
+            response.append({
+                "id": category.id,
+                "name": category.name,
+                "description": category.description,
+                "courses": courses_serializer.data
+            })
+        return Response(response)
 
-@api_view(['GET'])
+
+@api_view(['GET', 'POST'])
 def courses_list(request):
-    courses = Course.objects.all()
-    serializer = CourseSerializer(courses, many=True)
-    return Response(serializer.data)
+    if request.method == 'GET':
+        courses = Course.objects.all()
+        serializer = CourseSerializer(courses, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer = CourseSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def enrollment_list(request):
