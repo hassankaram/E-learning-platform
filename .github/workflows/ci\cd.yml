@@ -1,0 +1,70 @@
+import hashlib
+
+def hash_password(password):
+    """
+    Hashes the password using SHA-256.
+
+    Args:
+        password (str): The plaintext password to hash.
+
+    Returns:
+        str: The hashed password.
+    """
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def login(username, password, user_database):
+    """
+    Validates login credentials.
+
+    Args:
+        username (str): The username.
+        password (str): The plaintext password.
+        user_database (dict): A dictionary where keys are usernames and values are hashed passwords.
+
+    Returns:
+        bool: True if login is successful, False otherwise.
+    """
+    hashed_password = hash_password(password)
+    return user_database.get(username) == hashed_password
+
+def create_user(username, password, user_database):
+    """
+    Adds a new user to the database with a hashed password.
+
+    Args:
+        username (str): The username to create.
+        password (str): The plaintext password.
+        user_database (dict): The database to add the user to.
+
+    Returns:
+        bool: True if user is successfully added, False if the username already exists.
+    """
+    if username in user_database:
+        return False
+    user_database[username] = hash_password(password)
+    return True
+
+# Example usage for testing
+def main():
+    user_database = {}
+
+    print("Creating user 'testuser' with password 'testpass'...")
+    if create_user('testuser', 'testpass', user_database):
+        print("User created successfully!")
+    else:
+        print("Username already exists!")
+
+    print("Attempting login with correct credentials...")
+    if login('testuser', 'testpass', user_database):
+        print("Login successful!")
+    else:
+        print("Login failed!")
+
+    print("Attempting login with incorrect password...")
+    if login('testuser', 'wrongpass', user_database):
+        print("Login successful!")
+    else:
+        print("Login failed!")
+
+if __name__ == "__main__":
+    main()
