@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '/Users/mohamed3wes/new e-learning/E-learning-platform/e-learning/src/components/Contexts/AuthContext.jsx'; // Correct import for useAuth
+import { useAuth } from '/Users/mohamed3wes/Final-e-learning-project/E-learning-platform/e-learning/src/components/Contexts/AuthContext.jsx'; // Correct import for useAuth
 
 const Header = () => {
   const { isAuthenticated, user, logout } = useAuth();
