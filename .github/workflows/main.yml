@@ -21,12 +21,16 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16 # Ensure this matches your project's Node.js version
+          node-version: 16
 
       # Step 3: Install dependencies
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Run tests
+      # Step 4: Debug Jest Environment
+      - name: Debug Jest Environment
+        run: npx jest --version
+
+      # Step 5: Run tests
       - name: Run tests
         run: npm test -- --watchAll=false
